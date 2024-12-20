@@ -23,8 +23,9 @@ global {
 	point robot_location;
 	bool reach_goal;
 	
-	int energy_limit <- 1500 min: 0 max: 2500 parameter: true;
+	int energy_limit <- 700 min: 0 max: 2500 parameter: true;
 	list charging_location;
+	int shortest_path_length_to_charging_location <- 100000;
 	point shortest_charging_location;
 	int num_of_charging_pole_init <- 1;
 	bool reach_charging_pole;
@@ -45,11 +46,6 @@ global {
 			// ask cell {color <- is_obstacle ? #black : #white;}
 			file Map2_file <- csv_file("../includes/parking_lot.csv");
 			matrix Map2_matrix <- matrix(Map2_file);
-			grid_size_height <- Map2_matrix.rows;
-			grid_size_width <- Map2_matrix.columns;
-			
-			write (grid_size_height);
-			write (grid_size_width);
 			
 			loop i from: 0 to: grid_size_height -1 {
 				loop j from: 0 to: grid_size_width -1{
@@ -87,7 +83,6 @@ global {
 			
 			using topology(cell){
 				the_path <- path_between((cell where not each.is_obstacle), source, goal);
-				write(length(the_path.vertices));
 				if (length(the_path.vertices) < 50){
 					times_path_length_under_50 <- times_path_length_under_50 + 1;
 				} else if (length(the_path.vertices) < 75){
@@ -110,9 +105,23 @@ global {
 //	}
 	reflex move_to_charge when: (reach_goal and energy_limit < 400){
 		source <- robot_location;
-		//Sửa đoạn này sao cho chọn charging_location có vị trí ngắn nhất
+		//Chọn charging_location có vị trí ngắn nhất
+		loop i from: 0 to: length(charging_location) -1 {
+			point check_start <- robot_location;
+			point check_end <- charging_location[i];
+			path check_path;
+			using topology(cell){
+				check_path <- path_between((cell where not each.is_obstacle), check_start, check_end);
+			}
+			if( shortest_path_length_to_charging_location > length(check_path.vertices)) {
+				//write("Before:" + shortest_path_length_to_charging_location);
+				shortest_path_length_to_charging_location <- length(check_path.vertices);
+				//write("After:" + shortest_path_length_to_charging_location);
+				shortest_charging_location <- charging_location[i];	
+			}
+		}
+		shortest_path_length_to_charging_location <- 100000;
 		goal <- shortest_charging_location;
-		write("Charging in process");
 		using topology(cell){
 			the_path <- path_between((cell where not each.is_obstacle), source, goal);
 			if (length(the_path.vertices) < 50){
@@ -126,16 +135,16 @@ global {
 			}
 		}
 		reach_charging_pole <- robot_location = goal;
-		if (energy_limit < 100){
-			times_charging_under_100 <- times_charging_under_100 + 1;
-		} else if (energy_limit < 200) {
-			times_charging_from_100_to_200 <- times_charging_from_100_to_200 + 1;
-		} else if (energy_limit < 300) {
-			times_charging_from_200_to_300 <- times_charging_from_200_to_300 + 1;
-		} else {
-			times_charging_from_300_to_400 <- times_charging_from_300_to_400 + 1;
-		}
 		if (reach_charging_pole){
+			if (energy_limit < 100){
+				times_charging_under_100 <- times_charging_under_100 + 1;
+			} else if (energy_limit < 200) {
+				times_charging_from_100_to_200 <- times_charging_from_100_to_200 + 1;
+			} else if (energy_limit < 300) {
+				times_charging_from_200_to_300 <- times_charging_from_200_to_300 + 1;
+			} else {
+				times_charging_from_300_to_400 <- times_charging_from_300_to_400 + 1;
+			}
 			energy_limit <- energy_limit + 400;
 		}
 	}
