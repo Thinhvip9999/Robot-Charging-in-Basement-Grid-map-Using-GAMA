@@ -15,7 +15,7 @@ global {
 	float obstacle_rate <- 0.2 min: 0.0 max: 0.4 parameter: true;
 	int grid_size_height <- 100;
 	int grid_size_width <- 100;
-	point source;
+	point source; 
 	point goal;
 	path the_path;
 	int robot_step <- 0;
@@ -39,6 +39,8 @@ global {
 	int times_path_length_from_75_to_100;
 	int times_path_length_above_100;
 	
+	list list_of_goals;
+	
 	init toto{
 		if (scenario = "basement map") {
 			ask cell {is_obstacle <- false;}
@@ -49,14 +51,16 @@ global {
 			
 			loop i from: 0 to: grid_size_height -1 {
 				loop j from: 0 to: grid_size_width -1{
-					if (int(Map2_matrix[j, i]) >= 1) {
+					if (int(Map2_matrix[j, i]) >= 1 and int(Map2_matrix[j, i]) < 12) {
 						cell[j, i].is_obstacle <- true;
 					}
+					// Chọn 1 số trong csv tượng trưng cho list of goal
 				}
 			}
 			ask cell {color <- is_obstacle ? #black : #white;}
 		}
 		source <- (one_of (cell where not each.is_obstacle)).location;
+		//Thay đổi điểm goal không còn là tùy ý nữa mà phải là khu đặc biệt có is_goal = true
 		goal <- (one_of (cell where not each.is_obstacle)).location;
 		robot_location <- point(source);
 		charging_location <- [(cell[18, 11]).location, (cell[67,70]).location, (cell[86,24]).location];
@@ -77,6 +81,7 @@ global {
 		reach_goal <- robot_step = int(length(the_path.vertices));
 	 	if (reach_goal){
 			source <- goal;
+			//Thay đổi điểm goal không còn là tùy ý nữa mà phải là khu đặc biệt có is_goal = true
 			goal <- (one_of (cell where not each.is_obstacle)).location;
 			robot_step <- 0;
 			robot_location <- point(source);
@@ -200,6 +205,7 @@ species charging_pole {
 grid cell width: grid_size_width height: grid_size_height neighbors: neighborhood_type optimizer: algorithm {
 	bool is_obstacle <- flip(obstacle_rate);
 	rgb color <- is_obstacle ? #black : #white;
+	//Đối với những điểm goal đổi sang hình EV
 } 
 
 experiment AlgorithmsOnMap type: gui {
