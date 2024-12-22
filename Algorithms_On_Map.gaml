@@ -63,6 +63,7 @@ global {
 					// Chọn 1 số trong csv tượng trưng cho list of goal
 					if (int(Map2_matrix[j, i]) = 12) {
 						cell[j, i].is_in_goal_list <- true;
+						list_of_goals <+ cell[j, i].location;
 					}
 				}
 			}
@@ -215,9 +216,9 @@ species charging_pole {
 grid cell width: grid_size_width height: grid_size_height neighbors: neighborhood_type optimizer: algorithm {
 	bool is_obstacle <- flip(obstacle_rate);
 	bool is_in_goal_list;
-	int type_of_car <- one_of(0, 1, 2, 3);
+	int type_of_car <- rnd(length(ev_car_images)-1);
 	rgb color <- is_obstacle ? #black : #white;
-	//Đối với những điểm goal đổi sang hình EV chuyển sang sử dụng species để mô phỏng vị trí xe điện
+	//Sử dụng cấu trúc tương tự như bài Tool Pannel để xử lý icon của goal
 } 
 
 experiment AlgorithmsOnMap type: gui {
