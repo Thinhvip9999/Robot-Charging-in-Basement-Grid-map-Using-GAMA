@@ -40,6 +40,12 @@ global {
 	int times_path_length_above_100;
 	
 	list list_of_goals;
+	list<file> ev_car_images <- [
+		file("../includes/images/electric-car-green"),
+		file("../includes/images/electric-car-blue"),
+		file("../includes/images/electric-car-red"),
+		file("../includes/images/electric-car-purple")
+	];
 	
 	init toto{
 		if (scenario = "basement map") {
@@ -55,9 +61,13 @@ global {
 						cell[j, i].is_obstacle <- true;
 					}
 					// Chọn 1 số trong csv tượng trưng cho list of goal
+					if (int(Map2_matrix[j, i]) = 12) {
+						cell[j, i].is_in_goal_list <- true;
+					}
 				}
 			}
 			ask cell {color <- is_obstacle ? #black : #white;}
+			ask cell {}
 		}
 		source <- (one_of (cell where not each.is_obstacle)).location;
 		//Thay đổi điểm goal không còn là tùy ý nữa mà phải là khu đặc biệt có is_goal = true
@@ -204,8 +214,10 @@ species charging_pole {
 
 grid cell width: grid_size_width height: grid_size_height neighbors: neighborhood_type optimizer: algorithm {
 	bool is_obstacle <- flip(obstacle_rate);
+	bool is_in_goal_list;
+	int type_of_car <- one_of(0, 1, 2, 3);
 	rgb color <- is_obstacle ? #black : #white;
-	//Đối với những điểm goal đổi sang hình EV
+	//Đối với những điểm goal đổi sang hình EV chuyển sang sử dụng species để mô phỏng vị trí xe điện
 } 
 
 experiment AlgorithmsOnMap type: gui {
