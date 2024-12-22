@@ -1,5 +1,3 @@
-
-```markdown
 # Robot-Charging-in-Basement-Grid-map-Using-GAMA
 
 This project involves a simulation using GAMA to model and analyze robot charging strategies within a basement grid map environment. The primary goal is to optimize the movement and charging behavior of robots to ensure efficient energy usage and task completion.
