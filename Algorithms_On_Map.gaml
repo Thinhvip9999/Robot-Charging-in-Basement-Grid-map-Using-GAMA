@@ -41,11 +41,12 @@ global {
 	
 	list list_of_goals;
 	list<file> ev_car_images <- [
-		file("../includes/images/electric-car-green"),
-		file("../includes/images/electric-car-blue"),
-		file("../includes/images/electric-car-red"),
-		file("../includes/images/electric-car-purple")
+		file("../includes/images/electric-car-green.png"),
+		file("../includes/images/electric-car-blue.png"),
+		file("../includes/images/electric-car-red.png"),
+		file("../includes/images/electric-car-purple.png")
 	];
+	int type_of_ev <- rnd(length(ev_car_images)-1);
 	
 	init toto{
 		if (scenario = "basement map") {
@@ -91,6 +92,7 @@ global {
 	reflex check_robot{
 		reach_goal <- robot_step = int(length(the_path.vertices));
 	 	if (reach_goal){
+	 		type_of_ev <- rnd(length(ev_car_images)-1);
 			source <- goal;
 			//Thay đổi điểm goal không còn là tùy ý nữa mà phải là khu đặc biệt có is_goal = true
 			goal <- (one_of (cell where not each.is_obstacle)).location;
@@ -216,7 +218,6 @@ species charging_pole {
 grid cell width: grid_size_width height: grid_size_height neighbors: neighborhood_type optimizer: algorithm {
 	bool is_obstacle <- flip(obstacle_rate);
 	bool is_in_goal_list;
-	int type_of_car <- rnd(length(ev_car_images)-1);
 	rgb color <- is_obstacle ? #black : #white;
 	//Sử dụng cấu trúc tương tự như bài Tool Pannel để xử lý icon của goal
 } 
@@ -227,8 +228,7 @@ experiment AlgorithmsOnMap type: gui {
 		display main_display type: 2d antialias: false {
 			grid cell border: #black;
 			graphics "elements" {
-				draw circle(0.5) color: #green at: source border: #black;
-				draw circle(0.5) color: #red at: goal  border: #black;
+				draw image_file(ev_car_images[type_of_ev]) size:{shape.width * 0.01,shape.height * 0.01} at: goal;
 				loop v over: the_path.vertices {
 					draw triangle(0.3) color: #yellow border: #black at: point(v);
 				}
