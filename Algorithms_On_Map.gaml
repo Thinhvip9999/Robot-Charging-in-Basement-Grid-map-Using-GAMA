@@ -48,6 +48,8 @@ global {
 	];
 	int type_of_ev <- rnd(length(ev_car_images)-1);
 	
+	list<path> total_path;
+	
 	init toto{
 		if (scenario = "basement map") {
 			ask cell {is_obstacle <- false;}
@@ -69,7 +71,6 @@ global {
 				}
 			}
 			ask cell {color <- is_obstacle ? #black : #white;}
-			ask cell {}
 		}
 		source <- (one_of (cell where not each.is_obstacle)).location;
 		//Thay đổi điểm goal không còn là tùy ý nữa mà phải là khu đặc biệt có is_goal = true
@@ -78,6 +79,7 @@ global {
 		charging_location <- [(cell[18, 11]).location, (cell[67,70]).location, (cell[86,24]).location];
 		using topology(cell) {
 			the_path <- path_between((cell where not each.is_obstacle), source, goal);
+			total_path <+ the_path;
 		}
 		create robot number: num_of_robot_init;
 		loop i from:0 to: length(charging_location) -1 {
@@ -101,6 +103,7 @@ global {
 			
 			using topology(cell){
 				the_path <- path_between((cell where not each.is_obstacle), source, goal);
+				total_path <+ the_path;
 				if (length(the_path.vertices) < 50){
 					times_path_length_under_50 <- times_path_length_under_50 + 1;
 				} else if (length(the_path.vertices) < 75){
@@ -139,9 +142,10 @@ global {
 			}
 		}
 		shortest_path_length_to_charging_location <- 100000;
-		goal <- shortest_charging_location;
+		goal <- shortest_charging_location; 
 		using topology(cell){
 			the_path <- path_between((cell where not each.is_obstacle), source, goal);
+			total_path <+ the_path;
 			if (length(the_path.vertices) < 50){
 				times_path_length_under_50 <- times_path_length_under_50 + 1;
 			} else if (length(the_path.vertices) < 75){
