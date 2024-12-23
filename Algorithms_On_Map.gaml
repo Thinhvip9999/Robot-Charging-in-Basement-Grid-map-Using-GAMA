@@ -48,6 +48,7 @@ global {
 	];
 	int type_of_ev <- rnd(length(ev_car_images)-1);
 	
+	//change this into path.segment
 	list<path> total_path;
 	
 	init toto{
@@ -121,7 +122,7 @@ global {
 //		goal <- (one_of (cell where not each.is_obstacle)).location;
 //		
 //		using topology(cell) {
-//			the_path <- path_between((cell where not each.is_obstacle), source, goal);	
+//			the_path <- path_between((cell where not each.is_ob stacle), source, goal);	
 //		}
 //	}
 	reflex move_to_charge when: (reach_goal and energy_limit < 400){
@@ -232,6 +233,11 @@ experiment AlgorithmsOnMap type: gui {
 		display main_display type: 2d antialias: false {
 			grid cell border: #black;
 			graphics "elements" {
+				loop history_path over: total_path {
+					loop b over: history_path.segments{
+						draw b color: #blue;
+					}
+				}
 				loop v over: the_path.vertices {
 					draw triangle(0.3) color: #yellow border: #black at: point(v);
 				}
