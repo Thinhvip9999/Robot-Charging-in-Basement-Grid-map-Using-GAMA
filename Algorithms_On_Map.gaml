@@ -237,9 +237,12 @@ experiment AlgorithmsOnMap type: gui {
 					loop b over: history_path.segments{
 						draw b color: #blue;
 					}
+					loop c over: history_path.vertices {
+						draw circle(0.1) color: #red border: #blue at: point(c);
+					}
 				}
 				loop v over: the_path.vertices {
-					draw triangle(0.3) color: #yellow border: #black at: point(v);
+					draw triangle(0.5) color: #yellow border: #red at: point(v);
 				}
 				loop s over: the_path.segments {
 					draw s color: #red ;
