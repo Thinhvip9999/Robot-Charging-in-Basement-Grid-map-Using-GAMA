@@ -228,13 +228,13 @@ experiment AlgorithmsOnMap type: gui {
 		display main_display type: 2d antialias: false {
 			grid cell border: #black;
 			graphics "elements" {
-				draw image_file(ev_car_images[type_of_ev]) size:{shape.width * 0.01,shape.height * 0.01} at: goal;
 				loop v over: the_path.vertices {
 					draw triangle(0.3) color: #yellow border: #black at: point(v);
 				}
 				loop s over: the_path.segments {
 					draw s color: #red ;
 				}
+				draw image_file(ev_car_images[type_of_ev]) size:{shape.width * 0.01,shape.height * 0.01} at: goal;
 			}
 			species robot aspect: icon;
 			species charging_pole aspect: icon;
