@@ -79,8 +79,11 @@ global {
 		robot_location <- point(source);
 		charging_location <- [(cell[18, 11]).location, (cell[67,70]).location, (cell[86,24]).location];
 		using topology(cell) {
+			write("Before: " + length(total_path) + " Initialize stage!");
 			the_path <- path_between((cell where not each.is_obstacle), source, goal);
 			total_path <+ the_path;
+			write("After: " + length(total_path) + " Initialize stage!");
+			write("-----------END-----------");
 		}
 		create robot number: num_of_robot_init;
 		loop i from:0 to: length(charging_location) -1 {
@@ -93,6 +96,7 @@ global {
 	}
 	
 	reflex check_robot{
+		//Lỗi gặp phải khi chạy 1 path nữa trước khi sạc lẽ ra khi chạy đến sạc thì sẽ không xuất hiện 1 path kia nữa -> đổi check sạc lên trước
 		reach_goal <- robot_step = int(length(the_path.vertices));
 	 	if (reach_goal){
 	 		type_of_ev <- rnd(length(ev_car_images)-1);
@@ -103,8 +107,11 @@ global {
 			robot_location <- point(source);
 			
 			using topology(cell){
+				write("Before: " + length(total_path) + " Normal stage!");
 				the_path <- path_between((cell where not each.is_obstacle), source, goal);
 				total_path <+ the_path;
+				write("After: " + length(total_path) + " Normal stage!");
+				write("-----------END-----------");
 				if (length(the_path.vertices) < 50){
 					times_path_length_under_50 <- times_path_length_under_50 + 1;
 				} else if (length(the_path.vertices) < 75){
@@ -126,7 +133,11 @@ global {
 //		}
 //	}
 	reflex move_to_charge when: (reach_goal and energy_limit < 400){
+		write("Robot have reach_goal ? " + reach_goal);
+		write("Robot have " + energy_limit+ " left before charging");
+		reach_goal <- false;
 		source <- robot_location;
+		shortest_path_length_to_charging_location <- 100000;
 		//Chọn charging_location có vị trí ngắn nhất
 		loop i from: 0 to: length(charging_location) -1 {
 			point check_start <- robot_location;
@@ -142,11 +153,13 @@ global {
 				shortest_charging_location <- charging_location[i];	
 			}
 		}
-		shortest_path_length_to_charging_location <- 100000;
 		goal <- shortest_charging_location; 
 		using topology(cell){
+			write("Before: " + length(total_path) + " Charging stage!");
 			the_path <- path_between((cell where not each.is_obstacle), source, goal);
 			total_path <+ the_path;
+			write("After: " + length(total_path) + " Charging stage!");
+			write("-----------END-----------");
 			if (length(the_path.vertices) < 50){
 				times_path_length_under_50 <- times_path_length_under_50 + 1;
 			} else if (length(the_path.vertices) < 75){
