@@ -13,8 +13,8 @@ global {
 	string algorithm <- "A*" among: ["A*", "Dijkstra", "JPS", "BF", "Thinh"] parameter: true;
 	int neighborhood_type <- 4 among: [4, 8] parameter: true;
 	float obstacle_rate <- 0.2 min: 0.0 max: 0.4 parameter: true;
-	int grid_size_height <- 100;
-	int grid_size_width <- 100;
+	int grid_size_height <- 75;
+	int grid_size_width <- 75;
 	point source; 
 	point goal;
 	path the_path;
@@ -29,6 +29,7 @@ global {
 	point shortest_charging_location;
 	int num_of_charging_pole_init <- 1;
 	bool reach_charging_pole;
+	bool incharging_process <- false;
 	int times_charging_under_100;
 	int times_charging_from_100_to_200;
 	int times_charging_from_200_to_300;
@@ -61,11 +62,11 @@ global {
 			
 			loop i from: 0 to: grid_size_height -1 {
 				loop j from: 0 to: grid_size_width -1{
-					if (int(Map2_matrix[j, i]) >= 1 and int(Map2_matrix[j, i]) < 12) {
+					if (int(Map2_matrix[j, i]) = 1) {
 						cell[j, i].is_obstacle <- true;
 					}
 					// Chọn 1 số trong csv tượng trưng cho list of goal
-					if (int(Map2_matrix[j, i]) = 12) {
+					if (int(Map2_matrix[j, i]) = 2) {
 						cell[j, i].is_in_goal_list <- true;
 						list_of_goals <+ cell[j, i].location;
 					}
@@ -75,9 +76,9 @@ global {
 		}
 		source <- (one_of (cell where not each.is_obstacle)).location;
 		//Thay đổi điểm goal không còn là tùy ý nữa mà phải là khu đặc biệt có is_goal = true
-		goal <- (one_of (cell where not each.is_obstacle)).location;
+		goal <- (one_of (cell where each.is_in_goal_list)).location;
 		robot_location <- point(source);
-		charging_location <- [(cell[18, 11]).location, (cell[67,70]).location, (cell[86,24]).location];
+		charging_location <- [(cell[0, 0]).location, (cell[1, 0]).location, (cell[2, 0]).location];
 		using topology(cell) {
 			write("Before: " + length(total_path) + " Initialize stage!");
 			the_path <- path_between((cell where not each.is_obstacle), source, goal);
@@ -95,14 +96,14 @@ global {
 		do pause;
 	}
 	
-	reflex check_robot{
+	reflex check_robot when: (not incharging_process){
 		//Lỗi gặp phải khi chạy 1 path nữa trước khi sạc lẽ ra khi chạy đến sạc thì sẽ không xuất hiện 1 path kia nữa -> đổi check sạc lên trước
 		reach_goal <- robot_step = int(length(the_path.vertices));
 	 	if (reach_goal){
 	 		type_of_ev <- rnd(length(ev_car_images)-1);
 			source <- goal;
 			//Thay đổi điểm goal không còn là tùy ý nữa mà phải là khu đặc biệt có is_goal = true
-			goal <- (one_of (cell where not each.is_obstacle)).location;
+			goal <- (one_of (cell where each.is_in_goal_list)).location;
 			robot_step <- 0;
 			robot_location <- point(source);
 			
@@ -133,9 +134,8 @@ global {
 //		}
 //	}
 	reflex move_to_charge when: (reach_goal and energy_limit < 400){
-		write("Robot have reach_goal ? " + reach_goal);
+		incharging_process <- true;
 		write("Robot have " + energy_limit+ " left before charging");
-		reach_goal <- false;
 		source <- robot_location;
 		shortest_path_length_to_charging_location <- 100000;
 		//Chọn charging_location có vị trí ngắn nhất
@@ -182,6 +182,7 @@ global {
 				times_charging_from_300_to_400 <- times_charging_from_300_to_400 + 1;
 			}
 			energy_limit <- energy_limit + 400;
+			incharging_process <- false;
 		}
 	}
 }
@@ -234,10 +235,10 @@ species charging_pole {
 }
 
 grid cell width: grid_size_width height: grid_size_height neighbors: neighborhood_type optimizer: algorithm {
-	bool is_obstacle <- flip(obstacle_rate);
+	bool is_obstacle;
 	bool is_in_goal_list;
-	rgb color <- is_obstacle ? #black : #white;
-	//Sử dụng cấu trúc tương tự như bài Tool Pannel để xử lý icon của goal
+	rgb color_obstacle <- is_obstacle ? #black : #white;
+	rgb color_charging_position <- is_in_goal_list ? #red : #white;
 } 
 
 experiment AlgorithmsOnMap type: gui {
