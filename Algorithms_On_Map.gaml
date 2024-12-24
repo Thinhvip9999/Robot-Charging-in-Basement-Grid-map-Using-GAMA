@@ -72,7 +72,15 @@ global {
 					}
 				}
 			}
-			ask cell {color <- is_obstacle ? #black : #white;}
+			ask cell {
+				if(is_obstacle){
+					color <- #black;
+				} else if (is_in_goal_list){
+					color <- #red;
+				} else {
+					color <- #white;
+				}
+			}
 		}
 		source <- (one_of (cell where not each.is_obstacle)).location;
 		//Thay đổi điểm goal không còn là tùy ý nữa mà phải là khu đặc biệt có is_goal = true
