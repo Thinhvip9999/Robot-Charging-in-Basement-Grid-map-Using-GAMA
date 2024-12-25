@@ -124,6 +124,8 @@ global {
 			}
 		}
 		goal <- shortest_charging_location; 
+		robot_step <- 0;
+		robot_location <- point(source);
 		using topology(cell){
 			write("Before: " + length(total_path) + " Charging stage!");
 			the_path <- path_between((cell where not each.is_obstacle), source, goal);
