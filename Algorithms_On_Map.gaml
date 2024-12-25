@@ -86,7 +86,7 @@ global {
 		//Thay đổi điểm goal không còn là tùy ý nữa mà phải là khu đặc biệt có is_goal = true
 		goal <- (one_of (cell where each.is_in_goal_list)).location;
 		robot_location <- point(source);
-		charging_location <- [(cell[0, 0]).location, (cell[1, 0]).location, (cell[2, 0]).location];
+		charging_location <- [(cell[37, 17]).location, (cell[1, 0]).location, (cell[2, 0]).location];
 		using topology(cell) {
 			write("Before: " + length(total_path) + " Initialize stage!");
 			the_path <- path_between((cell where not each.is_obstacle), source, goal);
@@ -196,7 +196,7 @@ global {
 }
 
 species robot {
-	float size <- 1.0;
+	float size <- 1.3;
 	rgb color <- #blue;
 	image_file robot_icon <- image_file("../includes/images/robot.png");
 	
@@ -225,7 +225,7 @@ species robot {
 }
 
 species charging_pole {
-	float size <- 1.0;
+	float size <- 1.3;
 	rgb color <- #purple;
 	image_file charging_pole_icon <- image_file("../includes/images/charger.png");
 	
@@ -269,7 +269,7 @@ experiment AlgorithmsOnMap type: gui {
 				loop s over: the_path.segments {
 					draw s color: #red ;
 				}
-				draw image_file(ev_car_images[type_of_ev]) size:{shape.width * 0.01,shape.height * 0.01} at: goal;
+				draw image_file(ev_car_images[type_of_ev]) size:{shape.width * 0.013,shape.height * 0.013} at: goal;
 			}
 			species robot aspect: icon;
 			species charging_pole aspect: icon;
