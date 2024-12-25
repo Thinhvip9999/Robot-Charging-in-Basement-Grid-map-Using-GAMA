@@ -86,7 +86,7 @@ global {
 		//Thay đổi điểm goal không còn là tùy ý nữa mà phải là khu đặc biệt có is_goal = true
 		goal <- (one_of (cell where each.is_in_goal_list)).location;
 		robot_location <- point(source);
-		charging_location <- [(cell[37, 17]).location, (cell[1, 0]).location, (cell[2, 0]).location];
+		charging_location <- [(cell[37, 17]).location, (cell[16, 65]).location, (cell[71, 41]).location];
 		using topology(cell) {
 			write("Before: " + length(total_path) + " Initialize stage!");
 			the_path <- path_between((cell where not each.is_obstacle), source, goal);
@@ -104,45 +104,7 @@ global {
 		do pause;
 	}
 	
-	reflex check_robot when: (not incharging_process){
-		//Lỗi gặp phải khi chạy 1 path nữa trước khi sạc lẽ ra khi chạy đến sạc thì sẽ không xuất hiện 1 path kia nữa -> đổi check sạc lên trước
-		reach_goal <- robot_step = int(length(the_path.vertices));
-	 	if (reach_goal){
-	 		type_of_ev <- rnd(length(ev_car_images)-1);
-			source <- goal;
-			//Thay đổi điểm goal không còn là tùy ý nữa mà phải là khu đặc biệt có is_goal = true
-			goal <- (one_of (cell where each.is_in_goal_list)).location;
-			robot_step <- 0;
-			robot_location <- point(source);
-			
-			using topology(cell){
-				write("Before: " + length(total_path) + " Normal stage!");
-				the_path <- path_between((cell where not each.is_obstacle), source, goal);
-				total_path <+ the_path;
-				write("After: " + length(total_path) + " Normal stage!");
-				write("-----------END-----------");
-				if (length(the_path.vertices) < 50){
-					times_path_length_under_50 <- times_path_length_under_50 + 1;
-				} else if (length(the_path.vertices) < 75){
-					times_path_length_from_50_to_75 <- times_path_length_from_50_to_75 + 1;
-				} else if (length(the_path.vertices) < 100){
-					times_path_length_from_75_to_100 <- times_path_length_from_75_to_100 + 1;
-				} else {
-					times_path_length_above_100 <- times_path_length_above_100 + 1;
-				}
-			}
-		}
-	}
-//	reflex compute_path {
-//		source <- (one_of (cell where not each.is_obstacle)).location;
-//		goal <- (one_of (cell where not each.is_obstacle)).location;
-//		
-//		using topology(cell) {
-//			the_path <- path_between((cell where not each.is_ob stacle), source, goal);	
-//		}
-//	}
 	reflex move_to_charge when: (reach_goal and energy_limit < 400){
-		incharging_process <- true;
 		write("Robot have " + energy_limit+ " left before charging");
 		source <- robot_location;
 		shortest_path_length_to_charging_location <- 100000;
@@ -190,9 +152,47 @@ global {
 				times_charging_from_300_to_400 <- times_charging_from_300_to_400 + 1;
 			}
 			energy_limit <- energy_limit + 400;
-			incharging_process <- false;
 		}
 	}
+	
+	
+	reflex check_robot {
+		//Lỗi gặp phải khi chạy 1 path nữa trước khi sạc lẽ ra khi chạy đến sạc thì sẽ không xuất hiện 1 path kia nữa -> đổi check sạc lên trước
+		reach_goal <- robot_step = int(length(the_path.vertices));
+	 	if (reach_goal){
+	 		type_of_ev <- rnd(length(ev_car_images)-1);
+			source <- goal;
+			//Thay đổi điểm goal không còn là tùy ý nữa mà phải là khu đặc biệt có is_goal = true
+			goal <- (one_of (cell where each.is_in_goal_list)).location;
+			robot_step <- 0;
+			robot_location <- point(source);
+			
+			using topology(cell){
+				write("Before: " + length(total_path) + " Normal stage!");
+				the_path <- path_between((cell where not each.is_obstacle), source, goal);
+				total_path <+ the_path;
+				write("After: " + length(total_path) + " Normal stage!");
+				write("-----------END-----------");
+				if (length(the_path.vertices) < 50){
+					times_path_length_under_50 <- times_path_length_under_50 + 1;
+				} else if (length(the_path.vertices) < 75){
+					times_path_length_from_50_to_75 <- times_path_length_from_50_to_75 + 1;
+				} else if (length(the_path.vertices) < 100){
+					times_path_length_from_75_to_100 <- times_path_length_from_75_to_100 + 1;
+				} else {
+					times_path_length_above_100 <- times_path_length_above_100 + 1;
+				}
+			}
+		}
+	}
+//	reflex compute_path {
+//		source <- (one_of (cell where not each.is_obstacle)).location;
+//		goal <- (one_of (cell where not each.is_obstacle)).location;
+//		
+//		using topology(cell) {
+//			the_path <- path_between((cell where not each.is_ob stacle), source, goal);	
+//		}
+//	}
 }
 
 species robot {
@@ -255,12 +255,15 @@ experiment AlgorithmsOnMap type: gui {
 		display main_display type: 2d antialias: false {
 			grid cell border: #black;
 			graphics "elements" {
-				loop history_path over: total_path {
-					loop b over: history_path.segments{
-						draw b color: #blue;
-					}
-					loop c over: history_path.vertices {
-						draw circle(0.1) color: #red border: #blue at: point(c);
+				if (length(total_path) > 1){
+					loop history_path_index from: 0 to: length(total_path)-2 {
+						path history_path <- total_path[history_path_index];
+						loop b over: history_path.segments{
+							draw b color: #blue;
+						}
+						loop c over: history_path.vertices {
+							draw circle(0.1) color: #red border: #blue at: point(c);
+						}
 					}
 				}
 				loop v over: the_path.vertices {
