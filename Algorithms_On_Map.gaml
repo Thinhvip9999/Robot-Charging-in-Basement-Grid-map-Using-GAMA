@@ -10,7 +10,7 @@ model AlgorithmsOnMap
 global {
 	/** Insert the global definitions, variables and actions here */
 	string scenario <- "basement map" among: ["random map","basement map"] parameter: true;
-	string algorithm <- "A*" among: ["A*", "Dijkstra", "JPS", "BF", "Thinh"] parameter: true;
+	string algorithm <- "A*" among: ["A*", "Dijkstra", "JPS", "BF"] parameter: true;
 	int neighborhood_type <- 4 among: [4, 8] parameter: true;
 	float obstacle_rate <- 0.2 min: 0.0 max: 0.4 parameter: true;
 	int grid_size_height <- 75;
@@ -124,6 +124,7 @@ global {
 			}
 		}
 		goal <- shortest_charging_location; 
+		energy_limit <- energy_limit + 400;
 		robot_step <- 0;
 		robot_location <- point(source);
 		using topology(cell){
@@ -132,7 +133,7 @@ global {
 			total_path <+ the_path;
 			write("After: " + length(total_path) + " Charging stage!");
 			write("-----------END-----------");
-			if (length(the_path.vertices) < 50){
+			if (length(the_path.vertices) < 50){ 
 				times_path_length_under_50 <- times_path_length_under_50 + 1;
 			} else if (length(the_path.vertices) < 75){
 				times_path_length_from_50_to_75 <- times_path_length_from_50_to_75 + 1;
@@ -144,16 +145,15 @@ global {
 		}
 		reach_charging_pole <- robot_location = goal;
 		if (reach_charging_pole){
-			if (energy_limit < 100){
+			if (energy_limit - 400 < 100){
 				times_charging_under_100 <- times_charging_under_100 + 1;
-			} else if (energy_limit < 200) {
+			} else if (energy_limit - 400 < 200) {
 				times_charging_from_100_to_200 <- times_charging_from_100_to_200 + 1;
-			} else if (energy_limit < 300) {
+			} else if (energy_limit - 400 < 300) {
 				times_charging_from_200_to_300 <- times_charging_from_200_to_300 + 1;
 			} else {
 				times_charging_from_300_to_400 <- times_charging_from_300_to_400 + 1;
 			}
-			energy_limit <- energy_limit + 400;
 		}
 	}
 	
