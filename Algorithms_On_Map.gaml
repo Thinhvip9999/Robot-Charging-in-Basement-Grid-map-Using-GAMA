@@ -143,17 +143,15 @@ global {
 				times_path_length_above_100 <- times_path_length_above_100 + 1;
 			}
 		}
-		reach_charging_pole <- robot_location = goal;
-		if (reach_charging_pole){
-			if (energy_limit - 400 < 100){
-				times_charging_under_100 <- times_charging_under_100 + 1;
-			} else if (energy_limit - 400 < 200) {
-				times_charging_from_100_to_200 <- times_charging_from_100_to_200 + 1;
-			} else if (energy_limit - 400 < 300) {
-				times_charging_from_200_to_300 <- times_charging_from_200_to_300 + 1;
-			} else {
-				times_charging_from_300_to_400 <- times_charging_from_300_to_400 + 1;
-			}
+		write("reach charging pole");
+		if (energy_limit - 400 < 100){
+			times_charging_under_100 <- times_charging_under_100 + 1;
+		} else if (energy_limit - 400 < 200) {
+			times_charging_from_100_to_200 <- times_charging_from_100_to_200 + 1;
+		} else if (energy_limit - 400 < 300) {
+			times_charging_from_200_to_300 <- times_charging_from_200_to_300 + 1;
+		} else {
+			times_charging_from_300_to_400 <- times_charging_from_300_to_400 + 1;
 		}
 	}
 	
