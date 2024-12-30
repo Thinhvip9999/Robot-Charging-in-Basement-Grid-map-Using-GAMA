@@ -13,8 +13,8 @@ global {
 	string algorithm <- "A*" among: ["A*", "Dijkstra", "JPS", "BF"] parameter: true;
 	int neighborhood_type <- 4 among: [4, 8] parameter: true;
 	float obstacle_rate <- 0.2 min: 0.0 max: 0.4 parameter: true;
-	int grid_size_height <- 75;
-	int grid_size_width <- 75;
+	int grid_size_height <- 40;
+	int grid_size_width <- 40;
 	point source; 
 	point goal;
 	path the_path;
@@ -86,7 +86,7 @@ global {
 		//Thay đổi điểm goal không còn là tùy ý nữa mà phải là khu đặc biệt có is_goal = true
 		goal <- (one_of (cell where each.is_in_goal_list)).location;
 		robot_location <- point(source);
-		charging_location <- [(cell[37, 17]).location, (cell[16, 65]).location, (cell[71, 41]).location];
+		charging_location <- [(cell[0, 1]).location, (cell[0, 0]).location, (cell[0, 2]).location];
 		using topology(cell) {
 			write("Before: " + length(total_path) + " Initialize stage!");
 			the_path <- path_between((cell where not each.is_obstacle), source, goal);
