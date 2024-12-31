@@ -88,7 +88,7 @@ global {
 		//Thay đổi điểm goal không còn là tùy ý nữa mà phải là khu đặc biệt có is_goal = true
 		goal <- (one_of (cell where each.is_in_goal_list)).location;
 		robot_location <- point(source);
-		charging_location <- [(cell[0, 1]).location, (cell[0, 0]).location, (cell[0, 2]).location];
+		charging_location <- [(cell[19, 5]).location, (cell[2, 39]).location, (cell[38, 18]).location];
 		using topology(cell) {
 			write("Before: " + length(total_path) + " Initialize stage!");
 			the_path <- path_between((cell where not each.is_obstacle), source, goal);
