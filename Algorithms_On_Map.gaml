@@ -263,7 +263,7 @@ grid cell width: grid_size_width height: grid_size_height neighbors: neighborhoo
 	rgb color_charging_position <- is_in_goal_list ? #red : #white;
 } 
 
-grid button width:2 height:2 
+grid button width:2 height:1 
 {
 	int id <- int(self);
 	rgb bord_col<-#black;
@@ -276,7 +276,7 @@ grid button width:2 height:2
 experiment AlgorithmsOnMap type: gui {
 	/** Insert here the definition of the input and output of the model */
 	output synchronized: true {
-		layout horizontal([0.0::7285,1::2715]);
+		layout horizontal([0.0::4500,1::500, 2::2500, 3::2500]);
 		display main_display type: 2d antialias: false {
 			grid cell border: #black;
 			graphics "elements" {
@@ -307,7 +307,7 @@ experiment AlgorithmsOnMap type: gui {
 			event #mouse_down {ask simulation {do activate_act;}}  
 		}
 		
-		display "Robot Energy Infomation" type: 2d {
+		display "Robot Infomation" type: 2d {
 			chart "Robot Energy Real Time" type: series x_label: "Time frames" memorize: false {
 				data "Battery" value: energy_limit color: #green marker: false style: line;
 			}
